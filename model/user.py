@@ -1,59 +1,49 @@
+"""usuarios / users."""
+
 import uuid
 from datetime import datetime
-import os
-import json
+
 
 class User:
-    _emails = {}
-
-    def __init__(self, email, password, first_name, last_name):
-        if email in User._emails:
-            raise ValueError("A user with this email already exists.")
-        self.id = str(uuid.uuid4())
+    """Clase de usuario / user  class"""
+    def __init__(self, username, email, password):
+        """ crea el user ID / creates user ID"""
+        self.user_id = str(uuid.uuid4())
+        self.username = username
         self.email = email
+        """ crea password para el user / creates password for the user"""
         self.password = password
-        self.first_name = first_name
-        self.last_name = last_name
+        """ el tiempo de creacion / creation time"""
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
-        self.places = []
-        User._emails[email] = self
+        self.reviews = []
 
-    def update(self, email=None, password=None, first_name=None, last_name=None):
-        if email and email != self.email:
-            if email in User._emails:
-                raise ValueError(f"Email {email} is already in use.")
-            del User._emails[self.email]
-            User._emails[email] = self
-            self.email = email
-        if password:
-            self.password = password
-        if first_name:
-            self.first_name = first_name
-        if last_name:
-            self.last_name = last_name
-        self.updated_at = datetime.now()
+    def add_review(self, review):
+        """añade un review / adds review"""
+        self.reviews.append(review)
 
-    def to_dict(self):
+    def list_reviews(self):
+        """lista de reviews / list of reviews."""
+        return self.reviews
+
+    def update_user_data(self, new_data):
+        """ da update a la data user / updates data user"""
+        for key, value in new_data.items():
+            setattr(self, key, value)
+
+    def check_password(self, password):
+        """chequea si el password esta bien / checks is password is TRUE"""
+        return self.password == password
+
+    def dict(self):
+        """retorna como diccionario / returns data as dictionary"""
         return {
-            "id": self.id,
-            "email": self.email,
-            "password": self.password,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "places": self.places
+            'user_id': self.user_id,
+            'username': self.username,
+            'email': self.email,
+            # Convert datetime to ISO 8601 format
+            'created_at': self.created_at.isoformat(),
+            # Convert datetime to ISO 8601 format
+            'updated_at': self.updated_at.isoformat(),
+            'reviews': self.reviews
         }
-
-    def save_to_json(self, directory='data', filename='users.json'):
-        self.updated_at = datetime.now()
-        User._emails[self.email] = self
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        filepath = os.path.join(directory, filename)
-        with open(filepath, 'w') as f:
-            json.dump([user.to_dict() for user in User._emails.values()], f, indent=4)
-
-    def __repr__(self):
-        return f'<User {self.email}>'

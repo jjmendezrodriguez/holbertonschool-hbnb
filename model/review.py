@@ -17,7 +17,7 @@ class Review:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
-    def to_dict(self):
+    def dict(self):
         """retorna data como diccionario / returns the data as dictionary"""
         return {
             'review_id': self.review_id,

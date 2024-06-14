@@ -4,11 +4,11 @@ from data_manager import DataManager
 import uuid
 from datetime import datetime
 
-# Definición del namespace para las country.
+# Definición del namespace para los country.
 ns = Namespace('countries', description='Operations related to countries')
 data_manager = DataManager()
 
-# Definición del modelo para una Country
+# Definición del modelo para un Country
 country_model = ns.model('Country', {
     'id': fields.String(required=True, description='The country ID'),
     'name': fields.String(required=True, description='The country name'),
@@ -20,13 +20,13 @@ country_model = ns.model('Country', {
 @ns.route('/')
 class Countries(Resource):
     @ns.marshal_list_with(country_model)
-    def get(self):
+    def get(self): # Obtener todos los countries
         return data_manager.get_all_countries()
 
     @ns.expect(country_model)
     @ns.response(201, 'Country created')
     @ns.response(400, 'Invalid request')
-    def post(self):
+    def post(self): # Crear una nuevo country
         new_country_data = request.json
         new_country_data['id'] = str(uuid.uuid4())
         new_country_data['created_at'] = datetime.now()
@@ -42,7 +42,7 @@ class Countries(Resource):
 class CountryList(Resource):
     @ns.marshal_with(country_model)
     @ns.response(404, 'Country not found')
-    def get(self, country_id):
+    def get(self, country_id): # Obtener un country por su ID.
         country_data = data_manager.get_country(country_id)
         if country_data:
             return country_data
@@ -51,7 +51,7 @@ class CountryList(Resource):
 
     @ns.response(204, 'Country deleted')
     @ns.response(404, 'Country not found')
-    def delete(self, country_id):
+    def delete(self, country_id): # Eliminar un country existente.
         if data_manager.delete_country(country_id):
             return '', 204
         else:
@@ -61,7 +61,7 @@ class CountryList(Resource):
     @ns.response(204, 'Country updated')
     @ns.response(400, 'Invalid request')
     @ns.response(404, 'Country not found')
-    def put(self, country_id):
+    def put(self, country_id): # Actualizar country existente.
         new_country_data = request.json
         new_country_data['id'] = country_id
         new_country_data['updated_at'] = datetime.now()

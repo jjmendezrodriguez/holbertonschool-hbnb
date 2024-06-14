@@ -3,7 +3,7 @@ from Model.city import City
 from Persistence.persistence_manager import IPersistenceManager
 
 
-class CityRepository(IPersistenceManager):
+class CityRepo(IPersistenceManager):
     """Clase para gestionar la persistencia de ciudades."""
 
     def __init__(self):

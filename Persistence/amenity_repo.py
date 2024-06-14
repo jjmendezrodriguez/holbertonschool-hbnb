@@ -3,7 +3,7 @@ from Model.amenity import Amenity
 from Persistence.persistence_manager import IPersistenceManager
 
 
-class AmenityRepository(IPersistenceManager):
+class AmenityRepo(IPersistenceManager):
     """Clase para gestionar la persistencia de comodidades."""
 
     def __init__(self):

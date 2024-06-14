@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from model.user import User
-from persistence.data_manager import DataManager
+from data_manager import DataManager
 
 ns = Namespace('users', description='Operations related to users')
 

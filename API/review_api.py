@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from model.review import Review
-from persistence.data_manager import DataManager
+from data_manager import DataManager
 
 ns = Namespace('reviews', description='Operations related to reviews')
 

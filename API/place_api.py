@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from model.place import Place
-from persistence.data_manager import DataManager
+from data_manager import DataManager
 
 ns = Namespace('places', description='Operations related to places')
 

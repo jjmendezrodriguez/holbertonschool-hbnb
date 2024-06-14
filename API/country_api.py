@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from model.country import Country
-from persistence.data_manager import DataManager
+from data_manager import DataManager
 
 ns = Namespace('countries', description='Operations related to countries')
 

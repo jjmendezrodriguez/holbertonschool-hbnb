@@ -1,67 +1,71 @@
+from flask import request
 from flask_restx import Namespace, Resource, fields
-from model.city import City
-from persistence.data_manager import DataManager
+from data_manager import DataManager
+import uuid
+from datetime import datetime
 
 ns = Namespace('cities', description='Operations related to cities')
-
-city_model = ns.model('City', {
-    'name': fields.String(required=True, description='The city name'),
-    'country_code': fields.String(required=True, description='The ISO country code')
-})
-
 data_manager = DataManager()
 
-@ns.route('/')
-class CityList(Resource):
-    @ns.doc('create_city')
-    @ns.expect(city_model)
-    @ns.marshal_with(city_model, code=201)
-    def post(self):
-        """Create a new city"""
-        data = ns.payload
-        new_city = City(**data)
-        data_manager.save(new_city)
-        return new_city, 201
 
-    @ns.doc('list_cities')
+city_model = ns.model('City', {
+    'id': fields.String(required=True, description='The city ID'),
+    'name': fields.String(required=True, description='The city name'),
+    'country_id': fields.Integer(required=True, description='Country ID'),
+    'created_at': fields.DateTime(required=True, description='Date and time when city was created'),
+    'updated_at': fields.DateTime(required=True, description='Date and time city was last updated')
+})
+
+
+@ns.route('/')
+class Cities(Resource):
     @ns.marshal_list_with(city_model)
-    def get(self):
-        """List all cities"""
-        cities = data_manager.get_all('city')
-        return cities, 200
+    def get(self): # Crea una nueva ciudad.
+        return data_manager.get_all_cities()
+
+    @ns.expect(city_model)
+    @ns.response(201, 'City created')
+    @ns.response(400, 'Invalid request')
+    def post(self): # Lista de todas las ciudades.
+        new_city_data = request.json
+        new_city_data['id'] = str(uuid.uuid4())
+        new_city_data['created_at'] = datetime.now()
+        new_city_data['updated_at'] = datetime.now()
+        city_id = data_manager.save_city(new_city_data)
+        return {
+            'message': 'City created',
+            'city_id': city_id
+        }, 201
+
 
 @ns.route('/<string:city_id>')
-@ns.param('city_id', 'The city identifier')
-class CityResource(Resource):
-    @ns.doc('get_city')
+class CityList(Resource):
     @ns.marshal_with(city_model)
-    def get(self, city_id):
-        """Fetch a city given its ID"""
-        city = data_manager.get(city_id, 'city')
-        if not city:
-            ns.abort(404, f"City {city_id} not found")
-        return city, 200
+    @ns.response(404, 'City not found')
+    def get(self, city_id): # Obtiene una ciudad por su ID.
+        city_data = data_manager.get_city(city_id)
+        if city_data:
+            return city_data
+        else:
+            ns.abort(404, "City not found")
 
-    @ns.doc('update_city')
-    @ns.expect(city_model)
-    @ns.marshal_with(city_model)
-    def put(self, city_id):
-        """Update a city given its ID"""
-        data = ns.payload
-        city = data_manager.get(city_id, 'city')
-        if not city:
-            ns.abort(404, f"City {city_id} not found")
-        for key, value in data.items():
-            setattr(city, key, value)
-        city.updated_at = datetime.now()
-        data_manager.update(city)
-        return city, 200
-
-    @ns.doc('delete_city')
     @ns.response(204, 'City deleted')
-    def delete(self, city_id):
-        """Delete a city given its ID"""
-        if not data_manager.get(city_id, 'city'):
-            ns.abort(404, f"City {city_id} not found")
-        data_manager.delete(city_id, 'city')
-        return '', 204
+    @ns.response(404, 'City not found')
+    def delete(self, city_id): # Elimina la ciudad.
+        if data_manager.delete_city(city_id):
+            return '', 204
+        else:
+            ns.abort(404, "City not found")
+
+    @ns.expect(city_model)
+    @ns.response(204, 'City updated')
+    @ns.response(400, 'Invalid request')
+    @ns.response(404, 'City not found')
+    def put(self, city_id): # Actualiza una ciudad existente.
+        new_city_data = request.json
+        new_city_data['id'] = city_id
+        new_city_data['updated_at'] = datetime.now()
+        if data_manager.update_city(city_id, new_city_data):
+            return '', 204
+        else:
+            ns.abort(404, "City not found")

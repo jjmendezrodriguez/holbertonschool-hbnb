@@ -1,6 +1,6 @@
 import unittest
 from model.user import User
-from persistence.data_manager import DataManager
+from data_manager import DataManager
 
 class TestDataManager(unittest.TestCase):
 

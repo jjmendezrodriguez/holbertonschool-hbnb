@@ -2,7 +2,7 @@ import unittest
 from model.user import User
 from model.place import Place
 from model.city import City
-from persistence.data_manager import DataManager
+from data_manager import DataManager
 
 class TestPlace(unittest.TestCase):
 

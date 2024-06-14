@@ -1,19 +1,64 @@
-from abc import ABC, abstractmethod  # Importa ABC y abstractmethod del módulo abc para crear clases abstractas.
+from abc import ABC, abstractmethod  # Importa la clase ABC y el método abstracto
 
-class IPersistenceManager(ABC):  # Define una clase abstracta llamada IPersistenceManager que hereda de ABC (Abstract Base Class).
-    
-    @abstractmethod  # Declara que save es un método abstracto, que debe ser implementado por cualquier clase que herede de IPersistenceManager.
+class IPersistenceManager(ABC):
+    """Interfaz para definir métodos del administrador de persistencia."""
+
+    @abstractmethod
     def save(self, entity):
-        pass  # pass indica que no hay implementación en este punto.
+        """
+        Guarda una entidad.
 
-    @abstractmethod  # Declara que get es un método abstracto.
-    def get(self, entity_id, entity_type):
-        pass  # No hay implementación, debe ser definida por la clase derivada.
+        Args:
+            entity (object): La entidad que se va a guardar.
+        """
+        pass
 
-    @abstractmethod  # Declara que update es un método abstracto.
-    def update(self, entity):
-        pass  # No hay implementación, debe ser definida por la clase derivada.
+    @abstractmethod
+    def get(self, entity_id):
+        """
+        Obtiene una entidad por su ID.
 
-    @abstractmethod  # Declara que delete es un método abstracto.
-    def delete(self, entity_id, entity_type):
-        pass  # No hay implementación, debe ser definida por la clase derivada.
+        Args:
+            entity_id (str/int): El identificador único de la entidad.
+
+        Returns:
+            object: El objeto de la entidad si se encuentra, de lo contrario None.
+        """
+        pass
+
+    @abstractmethod
+    def update(self, entity_id, new_data):
+        """
+        Actualiza una entidad existente.
+
+        Args:
+            entity_id (str/int): El identificador único de la entidad que se actualizará.
+            new_data (dict): Un diccionario que contiene los nuevos datos para la entidad.
+
+        Returns:
+            bool: True si la actualización fue exitosa, False en caso contrario.
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, entity_id):
+        """
+        Elimina una entidad existente.
+
+        Args:
+            entity_id (str/int): El identificador único de la entidad que se eliminará.
+
+        Returns:
+            bool: True si la eliminación fue exitosa, False en caso contrario.
+        """
+        pass
+
+    @abstractmethod
+    def get_all(self):
+        """
+        Obtiene todas las entidades.
+
+        Returns:
+            list: Una lista de todos los objetos de entidad.
+        """
+        pass

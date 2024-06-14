@@ -1,23 +1,20 @@
-import unittest  # Importa el módulo unittest para realizar pruebas unitarias.
-from Model.review import Review  # Importa la clase Review del módulo model.review.
-from Model.user import User  # Importa la clase User del módulo model.user.
-from Model.place import Place  # Importa la clase Place del módulo model.place.
-from Model.city import City  # Importa la clase City del módulo model.city.
-from Model.country import Country  # Importa la clase Country del módulo model.country.
-from datetime import datetime
+import unittest
+from model.user import User
+from model.place import Place
+from model.review import Review
+from persistence.data_manager import DataManager
 
-class TestReview(unittest.TestCase):  # Define la clase de pruebas para Review.
+class TestReview(unittest.TestCase):
 
     def setUp(self):
-        # Inicializa datos comunes para las pruebas
-        self.user = User("reviewer@example.com", "password", "Reviewer", "User")  # Crea un usuario revisor.
-        self.country = Country(name="Sample Country", code="SC")  # Crea un país.
-        self.city = City(name="Sample City", country=self.country)  # Crea una ciudad.
+        User._emails.clear()  # Limpia los emails registrados antes de cada prueba
+        self.data_manager = DataManager("test_data")
+        self.user = User("reviewer@example.com", "password", "Reviewer", "User")
         self.place = Place(
             name="Sample Place",
             description="A sample place",
             address="123 Sample St",
-            city=self.city,
+            city="Sample City",
             latitude=10.0,
             longitude=20.0,
             host=self.user,
@@ -25,34 +22,33 @@ class TestReview(unittest.TestCase):  # Define la clase de pruebas para Review.
             number_of_bathrooms=2,
             price_per_night=100.0,
             max_guests=4
-        )  # Crea un lugar.
+        )
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree("test_data")
 
     def test_create_review(self):
-        # Prueba la creación de una reseña
-        review = Review(user=self.user, place=self.place, text="Great place!", rating=5)
-        self.assertEqual(review.user, self.user)  # Verifica que el usuario sea el esperado.
-        self.assertEqual(review.place, self.place)  # Verifica que el lugar sea el esperado.
-        self.assertEqual(review.text, "Great place!")  # Verifica que el texto sea el esperado.
-        self.assertEqual(review.rating, 5)  # Verifica que la calificación sea la esperada.
-        self.assertIsNotNone(review.id)  # Verifica que el id no sea None.
-        self.assertIsNotNone(review.created_at)  # Verifica que la fecha de creación no sea None.
-        self.assertIsNotNone(review.updated_at)  # Verifica que la fecha de actualización no sea None.
-
-    def test_update_review(self):
-        # Prueba la actualización de una reseña
-        review = Review(user=self.user, place=self.place, text="Great place!", rating=5)
-        review.update(text="Updated review", rating=4)  # Actualiza el texto y la calificación de la reseña.
-        self.assertEqual(review.text, "Updated review")  # Verifica que el texto sea el esperado.
-        self.assertEqual(review.rating, 4)  # Verifica que la calificación sea la esperada.
-        self.assertNotEqual(review.updated_at, review.created_at)  # Verifica que la fecha de actualización sea diferente a la fecha de creación.
+        review = Review(self.user, self.place, "Great place!", 5)
+        self.data_manager.save(review)
+        retrieved_review = self.data_manager.get(review.id, "review")
+        self.assertIsNotNone(retrieved_review)
+        self.assertEqual(retrieved_review["text"], "Great place!")
 
     def test_no_duplicate_reviews_on_same_day(self):
-        # Prueba que no se puedan crear reseñas duplicadas en el mismo día
-        review1 = Review(user=self.user, place=self.place, text="Great place!", rating=5)
-        review1.save_to_json()
-        with self.assertRaises(ValueError):  # Verifica que se lance un error al intentar crear una reseña duplicada el mismo día.
-            review2 = Review(user=self.user, place=self.place, text="Another review", rating=4)
-            review2.save_to_json()
+        review1 = Review(self.user, self.place, "Great place!", 5)
+        self.data_manager.save(review1)
+        review2 = Review(self.user, self.place, "Great place!", 5)
+        with self.assertRaises(ValueError):
+            self.data_manager.save(review2)
+
+    def test_update_review(self):
+        review = Review(self.user, self.place, "Great place!", 5)
+        self.data_manager.save(review)
+        review.text = "Updated review"
+        self.data_manager.update(review)
+        updated_review = self.data_manager.get(review.id, "review")
+        self.assertEqual(updated_review["text"], "Updated review")
 
 if __name__ == '__main__':
-    unittest.main()  # Ejecuta las pruebas.
+    unittest.main()

@@ -15,6 +15,7 @@ class Amenity:
         self.updated_at = datetime.now()
 
     def to_dict(self):
+        """ retorna amenity como diccionario"""
         return {
             'amenity_id': self.amenity_id,
             'name': self.name,

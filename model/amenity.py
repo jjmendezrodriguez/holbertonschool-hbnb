@@ -7,7 +7,7 @@ from datetime import datetime
 class Amenity:
     def __init__(self, name, description):
         """ identificacion"""
-        self.id = str(uuid.uuid4())
+        self.amenity_id = str(uuid.uuid4())
         self.name = name
         self.description = description
         """tiempo de creacion"""

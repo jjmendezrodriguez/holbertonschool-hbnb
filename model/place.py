@@ -6,22 +6,22 @@ from datetime import datetime
 
 class Place:
     """ clase de lugar/ place"""
-    def __init__(self, name, description,amenities, address, city, latitude, longitude, host, number_of_rooms, number_of_bathrooms, price_per_night, max_guests):
-        self.id = str(uuid.uuid4())
+    def __init__(self, name, description, address, city_id, latitude, longitude,
+        host_id, number_of_rooms, number_of_bathrooms, price_per_night,
+        max_guests, amenity_ids):
+        self.place_id = None
         self.name = name
         self.description = description
         self.address = address
-        self.city = city
+        self.city_id = city_id
         self.latitude = latitude
         self.longitude = longitude
-        self.host = host
+        self.host_id = host_id
         self.number_of_rooms = number_of_rooms
         self.number_of_bathrooms = number_of_bathrooms
         self.price_per_night = price_per_night
         self.max_guests = max_guests
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        self.amenities = amenities
+        self.amenity_ids = amenity_ids
         self.reviews = []
 
     def add_review(self, review):
@@ -61,9 +61,9 @@ class Place:
         self.latitude = latitude
         self.longitude = longitude
 
-    def add_amenity(self, amenities):
+    def add_amenity(self, amenity_id):
         """añade una amenity / adds amenity."""
-        self.amenity_ids.append(amenities)
+        self.amenity_ids.append(amenity_id)
 
     def toggle_availability(self):
         """juega con el availability de el room / toogle availability"""
@@ -82,10 +82,10 @@ class Place:
         for key, value in new_data.items():
             setattr(self, key, value)
 
-    def delete_amenity(self, amenities):
+    def delete_amenity(self, amenity_id):
         """borra amenity del lugar por el ID / deletes amenities from place ID"""
-        if amenities in self.amenities:
-            self.amenities.remove(amenities)
+        if amenity_id in self.amenity_id:
+            self.amenity_id.remove(amenity_id)
 
     def dict(self):
         """diccionario / dict"""

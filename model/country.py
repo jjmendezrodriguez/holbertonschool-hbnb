@@ -5,15 +5,13 @@ import uuid
 from datetime import datetime
 
 class Country:
-    def __init__(self, name, code):
+    def __init__(self, name):
         """ creando el ID/ creating ID"""
-        self.id = str(uuid.uuid4())
+        self.country_id = str(uuid.uuid4())
         self.name = name
-        self.code = code
         """ tiempo de creacion / creation time"""
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
-        self.cities = []
 
     def dict(self):
         """retorna diccionario / returns dictionary"""

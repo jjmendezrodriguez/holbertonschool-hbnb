@@ -7,7 +7,7 @@ class CityRepository(IPersistenceManager):
     """Clase para gestionar la persistencia de ciudades."""
 
     def __init__(self):
-        """Inicializa CityRepository con un diccionario vacío
+        """Inicializa CityRepo con un diccionario vacío
         para almacenar ciudades.
         """
         self.cities = {}

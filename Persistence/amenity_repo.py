@@ -7,7 +7,7 @@ class AmenityRepository(IPersistenceManager):
     """Clase para gestionar la persistencia de comodidades."""
 
     def __init__(self):
-        """Inicializa AmenityRepository con un diccionario vacío
+        """Inicializa AmenityRepo con un diccionario vacío
         para almacenar comodidades.
         """
         self.amenities = {}

@@ -15,7 +15,7 @@ class City:
         self.created_at = datetime.now()  # Record creation timestamp
         self.updated_at = datetime.now()  # Record update timestamp
 
-    def to_dict(self):
+    def dict(self):
         """retorna ciudad como diccionario/ city as  dictionary."""
         return {
             'city_id': self.city_id,

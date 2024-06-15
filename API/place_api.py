@@ -11,9 +11,9 @@ data_manager = DataManager()
 # # Definición del modelo para una Place
 place_model = ns.model('Place', {
     'id': fields.String(required=True, description='The place ID'),
-    'name': fields.String(required=True, description='The place name'),
+    'name': fields.String(required=True, description='The Place name'),
     'description': fields.String(description='Place description'),
-    'address': fields.String(description='Place address')
+    'address': fields.String(description='Place address'),
     'city_id': fields.Integer(description='City ID'),
     'latitude': fields.Float(description='Latitude'),
     'longitude': fields.Float(description='Longitude'),
@@ -23,9 +23,10 @@ place_model = ns.model('Place', {
     'price_per_night': fields.Float(description='Price per night'),
     'max_guests': fields.Integer(description='Maximum number of guests'),
     'amenity_ids': fields.List(fields.String, description='List of amenity IDs'),
-    'created_at': fields.DateTime(required=True, description='Date and time when the place was created'),
-    'updated_at': fields.DateTime(required=True, description='Date and time when the place was last updated')
+    'created_at': fields.DateTime(required=True, description='Date and time place was created'),
+    'updated_at': fields.DateTime(required=True, description='Date and time place was last updated')
 })
+
 
 # Ruta para gestionar la colección de place
 @ns.route('/')

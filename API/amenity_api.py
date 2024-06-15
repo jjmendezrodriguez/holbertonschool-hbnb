@@ -21,7 +21,7 @@ amenity_model = ns.model('Amenity', {
 class Amenities(Resource):
     @ns.marshal_list_with(amenity_model)
     def get(self): # Obtener todas las amenities.
-        return data_manager.get_all('amenity'), 200
+        return data_manager.get_all_amenities(), 200
 
     @ns.expect(amenity_model)
     @ns.response(201, 'Amenity created')

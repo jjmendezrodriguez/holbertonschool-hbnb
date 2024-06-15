@@ -1,69 +1,74 @@
+from flask import request
 from flask_restx import Namespace, Resource, fields
-from model.review import Review
 from data_manager import DataManager
+import uuid
+from datetime import datetime
 
+# Definición del namespace para los review.
 ns = Namespace('reviews', description='Operations related to reviews')
-
-review_model = ns.model('Review', {
-    'user': fields.String(required=True, description='The user email'),
-    'place': fields.String(required=True, description='The place name'),
-    'text': fields.String(required=True, description='The review text'),
-    'rating': fields.Integer(required=True, description='The review rating')
-})
-
 data_manager = DataManager()
 
-@ns.route('/')
-class ReviewList(Resource):
-    @ns.doc('create_review')
-    @ns.expect(review_model)
-    @ns.marshal_with(review_model, code=201)
-    def post(self):
-        """Create a new review"""
-        data = ns.payload
-        new_review = Review(**data)
-        data_manager.save(new_review)
-        return new_review, 201
+# Definición del modelo para un Review.
+review_model = ns.model('Review', {
+    'id': fields.String(required=True, description='Review ID'),
+    'user_id': fields.Integer(required=True, description='User ID'),
+    'place_id': fields.Integer(required=True, description='Place ID'),
+    'rating': fields.Integer(required=True, description='Rating'),
+    'comment': fields.String(description='Comment'),
+    'created_at': fields.DateTime(required=True, description='Date and time when review was created'),
+    'updated_at': fields.DateTime(required=True, description='Date and time when review was last updated')
+})
 
-    @ns.doc('list_reviews')
+# Ruta para gestionar la colección de review.
+@ns.route('/')
+class Reviews(Resource):
     @ns.marshal_list_with(review_model)
-    def get(self):
-        """List all reviews"""
-        reviews = data_manager.get_all('review')
-        return reviews, 200
+    def get(self): # Obtener todos los review.
+        return data_manager.get_all_reviews()
+
+    @ns.expect(review_model)
+    @ns.response(201, 'Review created')
+    @ns.response(400, 'Invalid request')
+    def post(self): # Crear reviews
+        new_review_data = request.json
+        new_review_data['id'] = str(uuid.uuid4())
+        new_review_data['created_at'] = datetime.now()
+        new_review_data['updated_at'] = datetime.now()
+        review_id = data_manager.save_review(new_review_data)
+        return {
+            'message': 'Review created',
+            'review_id': review_id
+        }, 201
+
 
 @ns.route('/<string:review_id>')
-@ns.param('review_id', 'The review identifier')
-class ReviewResource(Resource):
-    @ns.doc('get_review')
+class ReviewList(Resource):
     @ns.marshal_with(review_model)
-    def get(self, review_id):
-        """Fetch a review given its ID"""
-        review = data_manager.get(review_id, 'review')
-        if not review:
-            ns.abort(404, f"Review {review_id} not found")
-        return review, 200
+    @ns.response(404, 'Review not found')
+    def get(self, review_id): # Obtener un review por su ID.
+        review_data = data_manager.get_review(review_id)
+        if review_data:
+            return review_data
+        else:
+            ns.abort(404, "Review not found")
 
-    @ns.doc('update_review')
-    @ns.expect(review_model)
-    @ns.marshal_with(review_model)
-    def put(self, review_id):
-        """Update a review given its ID"""
-        data = ns.payload
-        review = data_manager.get(review_id, 'review')
-        if not review:
-            ns.abort(404, f"Review {review_id} not found")
-        for key, value in data.items():
-            setattr(review, key, value)
-        review.updated_at = datetime.now()
-        data_manager.update(review)
-        return review, 200
-
-    @ns.doc('delete_review')
     @ns.response(204, 'Review deleted')
-    def delete(self, review_id):
-        """Delete a review given its ID"""
-        if not data_manager.get(review_id, 'review'):
-            ns.abort(404, f"Review {review_id} not found")
-        data_manager.delete(review_id, 'review')
-        return '', 204
+    @ns.response(404, 'Review not found')
+    def delete(self, review_id): # Eliminar reviews
+        if data_manager.delete_review(review_id):
+            return '', 204
+        else:
+            ns.abort(404, "Review not found")
+
+    @ns.expect(review_model)
+    @ns.response(204, 'Review updated')
+    @ns.response(400, 'Invalid request')
+    @ns.response(404, 'Review not found')
+    def put(self, review_id): # Actualizar reviews.
+        new_review_data = request.json
+        new_review_data['id'] = review_id
+        new_review_data['updated_at'] = datetime.now()
+        if data_manager.update_review(review_id, new_review_data):
+            return '', 204
+        else:
+            ns.abort(404, "Review not found")
